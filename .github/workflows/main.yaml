@@ -77,7 +77,7 @@ jobs:
         if: always()                        # what is this for?
   integration:
     runs-on: ubuntu-20.04
-    needs: oast
+    needs: [oast,oast-frontend]
     steps:
       - run: echo "This is an integration step"
       - run: exit 1
