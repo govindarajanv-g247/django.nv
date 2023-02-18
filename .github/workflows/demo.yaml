@@ -12,17 +12,33 @@ jobs:
       - run: echo "This is a build step"      # similar to "script" in GitLab
 
   test:
+    needs: build
     runs-on: ubuntu-20.04
     steps:
       - run: echo "This is a test step"
 
-  integration:
+  artifact:
+    needs: test
     runs-on: ubuntu-20.04
+    steps:
+      - run: echo "hello" > hello.txt
+      - name: 'Upload Artifact'
+        uses: actions/upload-artifact@v3
+        with:
+          name: my-artifact
+          path: hello.txt
+          retention-days: 5
+
+  integration:
+    needs: artifact
+    runs-on: ubuntu-20.04
+    continue-on-error: true
     steps:
       - run: echo "This is an integration step"
       - run: exit 1
 
   prod:
+    needs: integration
     runs-on: ubuntu-20.04
     steps:
       - run: echo "This is a deploy step"
