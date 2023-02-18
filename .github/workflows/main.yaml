@@ -95,7 +95,7 @@ jobs:
   
   sast:
     runs-on: ubuntu-20.04
-    needs: oast-frontend     
+    needs: [oast,oast-frontend, oast-snyk]     
     steps:
       - uses: actions/checkout@v2
 
@@ -138,7 +138,7 @@ jobs:
         if: always()        # what is this for?
   integration:
     runs-on: ubuntu-20.04
-    needs: [oast,oast-frontend, oast-snyk]
+    needs: sast
     steps:
       - run: echo "This is an integration step"
       - run: exit 1
