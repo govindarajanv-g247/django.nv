@@ -178,7 +178,7 @@ jobs:
   zap_docker_baseline:
     name: dast-docker
     runs-on: ubuntu-20.04
-    needs: test
+    needs: sast
     steps:
       - run: |
            docker pull owasp/zap2docker-stable:2.10.0
