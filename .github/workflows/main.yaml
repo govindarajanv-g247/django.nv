@@ -155,9 +155,29 @@ jobs:
           name: Snyk               
           path: snyk-results.json
         if: always()        # what is this for?
-  integration:
+  zap_baseline:
+    name: dast
     runs-on: ubuntu-20.04
     needs: sast
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: main
+
+        # Once the pipeline is complete, you can click the Issues tab in your repository, and you will notice that there is 1 issue open.         # The open issue is a result of embedding ZAP through the action zaproxy/action-baseline@v0.4.0, and the issue is created automatically by github-actions bot
+
+      - name: ZAP Scan
+        uses: zaproxy/action-baseline@v0.4.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          docker_name: 'owasp/zap2docker-stable:2.10.0'
+          target: ${{ secrets.PROD_URL }}
+        continue-on-error: true
+        
+  integration:
+    runs-on: ubuntu-20.04
+    needs: zap_baseline
     steps:
       - run: echo "This is an integration step"
       - run: exit 1
