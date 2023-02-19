@@ -155,7 +155,7 @@ jobs:
           name: Snyk               
           path: snyk-results.json
         if: always()        # what is this for?
-  zap_baseline:
+  zap_action_baseline:
     name: dast
     runs-on: ubuntu-20.04
     needs: sast
@@ -174,10 +174,25 @@ jobs:
           docker_name: 'owasp/zap2docker-stable:2.10.0'
           target: ${{ secrets.PROD_URL }}
         continue-on-error: true
+  
+  zap_docker_baseline:
+    name: dast-docker
+    runs-on: ubuntu-20.04
+    needs: test
+    steps:
+      - run: |
+           docker pull owasp/zap2docker-stable:2.10.0
+           docker run --user root --rm -v $(pwd):/zap/wrk:rw -w /zap owasp/zap2docker-stable:2.10.0 zap-baseline.py -t ${{ secrets.PROD_URL }} -J zap-output.json
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: ZAP Scan
+          path: zap-output.json
+        if: always()        # what is this for?
         
   integration:
     runs-on: ubuntu-20.04
-    needs: zap_baseline
+    needs: [zap_action_baseline, zap_docker_baseline] 
     steps:
       - run: echo "This is an integration step"
       - run: exit 1
